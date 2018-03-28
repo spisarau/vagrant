@@ -1,0 +1,25 @@
+- name: Configure Tomcat
+  hosts: all
+  become: True
+  tasks:
+  - name: Installing java
+    apt: name=default-jdk update_cache=yes
+  - name: Extracting Tomcat package
+    unarchive: 
+     src: http://www-us.apache.org/dist/tomcat/tomcat-9/v9.0.6/bin/apache-tomcat-9.0.6.tar.gz
+     dest: /usr/local/
+     remote_src: yes
+  - name: Adding users 
+    copy: src=files/tomcat-users.xml dest=/usr/local/apache-tomcat-9.0.6/conf/tomcat-users.xml mode=u+rw,g-+r,o+r
+  - name: Adding permission connecting to Host Manager
+    copy: src=files/context.xml dest=/usr/local/apache-tomcat-9.0.6/webapps/host-manager/META-INF/context.xml mode=u+rw,g-+r,o+r
+  - name: Adding permission connecting to Manager
+    copy: src=files/context.xml dest=/usr/local/apache-tomcat-9.0.6/webapps/manager/META-INF/context.xml mode=u+rw,g-+r,o+r
+  - name: Copying error page
+    copy: src=files/404.html dest=/usr/local/apache-tomcat-9.0.6/webapps/ROOT/404.html
+  - name: Copying Tomcat config page
+    copy: src=files/web.xml dest=/usr/local/apache-tomcat-9.0.6/conf/web.xml mode=0600
+  - name: Configuring service
+    copy: src=files/tomcat.service dest=/etc/systemd/system/tomcat.service mode=u+rw,g-+r,o+r
+  - name: enable tomcat startup name=tomcat enabled=yes
+    systemd: name=tomcat  enabled=yes state=restarted

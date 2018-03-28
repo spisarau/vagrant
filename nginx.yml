@@ -1,0 +1,19 @@
+- name: Configure webserver with a nginx
+  hosts: all
+  become: True
+  tasks:
+  - name: Set authorized key took from file
+    authorized_key:
+     user: vagrant
+     state: present
+     key: "{{ lookup('file', 'id_rsa.pub') }}"  
+  - name: Installing nginx
+    apt: name=nginx update_cache=yes
+  - name: Copying nginx config file
+    copy: src=files/nginx.conf dest=/etc/nginx/sites-available/default
+  - name: Enabling configuration
+    file: dest=/etc/nginx/sites-enabled/default src=/etc/nginx/sites-available/default state=link
+  - name: Copying  index.html
+    template: src=templates/index.html.j2 dest=/usr/share/nginx/html/index.html mode=7777
+  - name: restart nginx
+    service: name=nginx state=restarted

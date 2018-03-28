@@ -1,0 +1,123 @@
+- name: Configure Jenkins
+  hosts: all
+  become: True
+  tasks: 
+  - name: Add an Apt signing key, uses whichever key is at the URL
+    apt_key:
+      url: https://pkg.jenkins.io/debian/jenkins.io.key
+      state: present
+  - name: Adding repository
+    apt_repository:
+      repo: deb http://pkg.jenkins.io/debian-stable binary/
+      state: present
+      filename: 'jenkins'
+  - name: Installing Jenkins
+    apt: name=jenkins update_cache=yes
+  - name: Stopping Jenkins
+    service:
+      name: jenkins
+      state: stopped
+  - name: Make Copy Publish
+    copy: 
+     src: templates/publish.xml
+     dest: /tmp/publish.xml
+     mode: 0644
+  - name: Make Copy Key
+    copy: 
+     src: id_rsa
+     dest: /var/lib/jenkins/id_rsa
+     mode: 0644
+  - name: Make Copy Build
+    copy: 
+     src: templates/build.xml
+     dest: /tmp/build.xml
+     mode: 0644	 
+  - name: Make Copy Credentials
+    copy: 
+     src: templates/credentials.xml
+     dest: /tmp/credentials.xml
+     mode: 0644
+  - name: Make Copy Config
+    copy: 
+     src: templates/config.xml
+     dest: /var/lib/jenkins/config.xml
+     mode: 0644
+  - name: Make Copy ssh properties
+    copy: 
+     src: templates/jenkins.plugins.publish_over_ssh.BapSshPublisherPlugin.xml
+     dest: /var/lib/jenkins/jenkins.plugins.publish_over_ssh.BapSshPublisherPlugin.xml
+     mode: 0644 
+  - name: Make Admin dir
+    file: 
+     path: /var/lib/jenkins/users/admin
+     state: directory
+     mode: 0777  
+  - name: Copy Admin config
+    copy: 
+     src: templates/admin.xml
+     dest: /var/lib/jenkins/users/admin/config.xml
+     mode: 0644
+  - name: Restart Jenkins
+    service:
+      name: jenkins
+      state: restarted
+  - name: Checking server
+    uri:
+     url: "http://192.168.50.201:8080/"
+     method: GET
+     user: "admin"
+     password: "admin"
+     force_basic_auth: yes
+     body_format: json
+     return_content: no
+    register: result
+    until: result.status == 200
+    delay: 10
+    retries: 30
+  - name: Install plugin build-pipeline-plugin
+    jenkins_plugin:
+      name: build-pipeline-plugin
+      url_username: admin
+      url_password: admin
+      url: http://localhost:8080
+      timeout: 240
+  - name: Install plugin publish-over-ssh
+    jenkins_plugin:
+      name: publish-over-ssh
+      url_username: admin
+      url_password: admin
+      url: http://localhost:8080
+      timeout: 240
+  - name: Install plugin Deploy
+    jenkins_plugin:
+      name: deploy
+      url_username: admin
+      url_password: admin
+      url: http://localhost:8080
+      timeout: 240
+  - pause:
+      seconds: 15
+  - name: Restart Jenkins
+    service:
+      name: jenkins
+      state: restarted
+  - name: Checking server
+    uri:
+     url: "http://192.168.50.201:8080/"
+     method: GET
+     user: "admin"
+     password: "admin"
+     force_basic_auth: yes
+     body_format: json
+     return_content: no
+    register: result
+    until: result.status == 200
+    delay: 10
+    retries: 30
+  - name: Install Job Build
+    shell: "java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://localhost:8080 -auth admin:admin create-job Build < /tmp/build.xml"
+  - name: Installing Job Publish
+    shell: "java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://localhost:8080 -auth admin:admin create-job Publish < /tmp/publish.xml"
+  - name: Installing Tomcat credentials
+    shell: "java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://localhost:8080 -auth admin:admin create-credentials-by-xml system::system::jenkins _ < /tmp/credentials.xml"
+
