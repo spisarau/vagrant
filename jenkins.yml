@@ -37,6 +37,11 @@
      src: templates/credentials.xml
      dest: /tmp/credentials.xml
      mode: 0644
+  - name: Make Copy Cli
+    copy: 
+     src: templates/cli.xml
+     dest: /var/lib/jenkins/jenkins.CLI.xml
+     mode: 0644
   - name: Make Copy Config
     copy: 
      src: templates/config.xml
