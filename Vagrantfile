@@ -9,6 +9,7 @@ Vagrant.configure(2) do |config|
 
  config.vm.define "jenkins",autostart: true do |jenkins|
         jenkins.vm.box = "bento/ubuntu-16.04"
+	jenkins.vm.box_version = "201802.02.0"
 	jenkins.vm.hostname = "jenkins"
 	jenkins.vm.network "public_network", ip: "192.168.50.201"
 	jenkins.vm.provision "shell", path: "addhost.sh"
@@ -24,6 +25,7 @@ Vagrant.configure(2) do |config|
 
   config.vm.define "web",autostart: true do |web|
         web.vm.box = "bento/ubuntu-16.04"
+	web.vm.box_version = "201802.02.0"
 	web.vm.hostname = "web"
 	web.vm.network "public_network", ip: "192.168.50.202"
 	web.vm.provision "shell", path: "addhost.sh"
@@ -37,6 +39,7 @@ Vagrant.configure(2) do |config|
   end
   config.vm.define "app-tomcat",autostart: true do |tomcat|
 	tomcat.vm.box = "bento/ubuntu-16.04"
+	tomcat.vm.box_version = "201802.02.0"
 	tomcat.vm.hostname = "app-tomcat"
 	tomcat.vm.network "public_network", ip: "192.168.50.203"
 	tomcat.vm.provision "ansible" do |ansible|
