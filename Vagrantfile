@@ -19,7 +19,7 @@ Vagrant.configure(2) do |config|
 	end
 	
 	jenkins.vm.provider "virtualbox" do |v|
-	v.memory = 1024
+	v.memory = 512
 	end
   end
 
@@ -34,7 +34,7 @@ Vagrant.configure(2) do |config|
 	ansible.playbook = "nginx.yml"
 	end
 	web.vm.provider "virtualbox" do |v|
-	v.memory = 1024
+	v.memory = 512
 	end
   end
   config.vm.define "app-tomcat",autostart: true do |tomcat|
@@ -48,7 +48,7 @@ Vagrant.configure(2) do |config|
 	ansible.playbook = "tomcat.yml"
 	end
 	tomcat.vm.provider "virtualbox" do |v|
-	v.memory = 1024
+	v.memory = 512
 	end
   end
 
