@@ -6,7 +6,7 @@
 *  #### Сервер app-tomcat - [http://192.168.50.203:8080](http://192.168.50.203:8080)
    * #### Manager App 
       * имя: manager
-      * парль: manager
+      * пароль: manager
    * #### Hostmanager
       * имя: admin
-      * парль: admin 
+      * пароль: admin 
